@@ -1,4 +1,5 @@
 from models.user import Admin, Organizer, Student
+from models.event import Eventmanager
 
 USERS = [
     Admin("A001", "Alice", "admin123"), # this is the object we use
@@ -6,7 +7,8 @@ USERS = [
     Student("S001", "Charlie", "stu123"),
     Student("S002", "Diana", "dia123")
     ]
-    
+
+event_manager = Eventmanager()
 print("\n======== Campus Event System ==========")
 print("           Welcome! Please log in")
 print("==========================================")
@@ -38,6 +40,16 @@ def show_menu(user):
             return int(choice)
         print(f"Please enter the number in list of options!")
 
+def handle_action(user, selected):
+    if selected == "Create event":
+        event_manager.create_event()
+    
+    elif selected == "View all events":
+        event_manager.view_all_events()
+
+    else:
+        print(f"\n '{selected}' coming soon...")
+
 '''Main loop'''
 def main():
     
@@ -56,8 +68,7 @@ def main():
                 print(f"\nGoodbye, {user.name}!")
                 break
             else:
-                print(f"\n →  '{selected}' coming soon...")
-
+                handle_action(user, selected)
 if __name__ == "__main__":
     main()
 
