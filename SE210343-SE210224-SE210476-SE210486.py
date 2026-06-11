@@ -74,7 +74,7 @@ def add_student(names, scores, name, score):
     """
 
     # TODO: Hoàn thiện hàm add_student
-    result = " ".join(name.strip().split()).lower().capitalize()
+    result = " ".join(name.strip().split()).lower().title()
     names.append(result)
     
     if 0 <= score <= 10:
@@ -99,7 +99,7 @@ def display_students(names, scores):
 
     # TODO: Hoàn thiện hàm display_students
     for i in range(len(names)):
-        print(f"{i + 1}. {names[i]} - Diem: {scores[i]}")
+        print(f"{i + 1}. {names[i].title()} - Diem: {scores[i]}")
 
 
 # ============================================================
@@ -178,9 +178,9 @@ def find_students_by_keyword(names, scores, keyword):
     
     for name_position in range(len(lower_name)):
         
-        if keyword in lower_name[name_position]:
+        if keyword.lower() in lower_name[name_position]:
             score = scores[name_position]
-            result.append((name,score))
+            result.append((names[name_position].title(),score))
     return result
 
 # ============================================================
@@ -224,20 +224,11 @@ def sort_students_by_name(names, scores):
     """
 
     # TODO: Hoàn thiện hàm sort_students_by_name
-    ghep_ten_so = list(zip(names, scores))
-    
-    xep = sorted(ghep_ten_so)
-    sorted_names, sorted_scores = zip(*xep)
-    
+    ghep_ten_so = list(zip(names, scores))   
+    xep = sorted(ghep_ten_so, key=lambda student: student[0].split()[-1])
+    sorted_names, sorted_scores = zip(*xep) 
     return list(sorted_names), list(sorted_scores)
 
-ten = ["Ho Thi Em", "Le Minh Chau", "Nguyen Van An", "Pham Hoang Dung",
-       "Tran Thi Binh"]
-diem = [7.5, 6.8, 8.5, 4.5,9.2]
-kq_ten, kq_so = sort_students_by_name(ten, diem)
-print("=== DANH SACH SAP XEP THEO TEN ===")
-for i in range(len(kq_ten)):
-    print(f"{i+1}. {kq_ten[i]} - Diem: {kq_so[i]}")
 
 
 # ============================================================
@@ -283,7 +274,23 @@ def remove_student_by_name(names, scores, name):
     """
 
     # TODO: Hoàn thiện hàm remove_student_by_name
-    pass
+    result = find_students_by_keyword(names, scores, name)
+    
+    if result:    
+        found_name = result[0][0]
+
+        index = None
+        for i in range(len(names)):
+            if names[i].lower() == found_name.lower():
+                index = i
+                break
+
+        if index is not None:
+            names.pop(index)
+            scores.pop(index)
+            return True
+        
+    return False
 
 
 # ============================================================
