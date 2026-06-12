@@ -224,9 +224,11 @@ def sort_students_by_name(names, scores):
     """
 
     # TODO: Hoàn thiện hàm sort_students_by_name
-    ghep_ten_so = list(zip(names, scores))   
-    xep = sorted(ghep_ten_so, key=lambda student: student[0].split()[-1])
-    sorted_names, sorted_scores = zip(*xep) 
+    ghep_ten_so = list(zip(names, scores))
+    
+    xep = sorted(ghep_ten_so)
+    sorted_names, sorted_scores = zip(*xep)
+    
     return list(sorted_names), list(sorted_scores)
 
 
