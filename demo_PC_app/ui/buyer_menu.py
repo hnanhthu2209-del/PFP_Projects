@@ -2,42 +2,6 @@ import data.store as store
 from models.order import Order
 
 
-def search_components():
-    print("\n--- SEARCH COMPONENTS ---")
-    keyword = input("Enter keyword (name or category): ").strip().lower()
-    results = [c for c in store.components
-               if keyword in c.name.lower() or keyword in c.category.lower()]
-    if not results:
-        print("No components found.")
-    else:
-        print(f"\nFound {len(results)} result(s):")
-        for c in results:
-            print(" ", c)
-
-        buy = input("\nEnter component ID to purchase (or press Enter to skip): ").strip()
-        if buy:
-            try:
-                cid = int(buy)
-                component = store.find_component_by_id(cid)
-                if component is None:
-                    print("[!] Component not found.")
-                elif component.stock <= 0:
-                    print("[!] Out of stock.")
-                else:
-                    qty = int(input(f"Enter quantity (available: {component.stock}): ").strip())
-                    if qty <= 0 or qty > component.stock:
-                        print("[!] Invalid quantity.")
-                    else:
-                        total = qty * component.price
-                        order = Order(store.find_user.__self__ if False else _current_buyer,
-                                      component.component_id, component.name, qty, total)
-                        store.orders.append(order)
-                        component.stock -= qty
-                        print(f"[✓] Order placed! {order}")
-            except ValueError:
-                print("[!] Invalid input.")
-
-
 def view_orders(buyer_username):
     print("\n--- MY PURCHASED ORDERS ---")
     my_orders = [o for o in store.orders if o.buyer_username == buyer_username]
