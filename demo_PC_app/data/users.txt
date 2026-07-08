@@ -1,0 +1,3 @@
+admin|admin123|admin
+buyer1|pass123|buyer
+buyer2|pass456|buyer

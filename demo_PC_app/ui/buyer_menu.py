@@ -123,6 +123,8 @@ def _search_and_buy(buyer_username):
                               component.name, qty, total)
                 store.orders.append(order)
                 component.stock -= qty
+                store.save_orders()
+                store.save_components()
                 print(f"[✓] Order placed! {order}")
     except ValueError:
         print("[!] Invalid input.")

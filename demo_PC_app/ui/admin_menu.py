@@ -54,6 +54,7 @@ def _add_component():
         cid = store.get_next_component_id()
         component = Component(cid, name, category, price, stock)
         store.components.append(component)
+        store.save_components()
         print(f"[✓] Component added: {component}")
     except ValueError:
         print("[!] Invalid input. Component not added.")
@@ -131,6 +132,7 @@ def _manage_compatible_products():
                 component.compatible_with.append(sid)
                 added.append(str(s))
         if added:
+            store.save_components()
             print(f"[✓] Added: {', '.join(added)}")
 
     elif sub == "2":
@@ -145,6 +147,7 @@ def _manage_compatible_products():
             if 0 <= idx < len(component.compatible_with):
                 removed_id = component.compatible_with.pop(idx)
                 s = store.find_series_by_id(removed_id)
+                store.save_components()
                 print(f"[✓] Removed: {s if s else removed_id}")
             else:
                 print("[!] Invalid selection.")
@@ -153,6 +156,7 @@ def _manage_compatible_products():
 
     elif sub == "3":
         component.compatible_with.clear()
+        store.save_components()
         print("[✓] All compatible PC series cleared.")
 
     elif sub == "4":
@@ -227,6 +231,8 @@ def _add_order():
         order = Order(buyer, component.component_id, component.name, qty, total)
         store.orders.append(order)
         component.stock -= qty
+        store.save_orders()
+        store.save_components()
         print(f"[✓] Order added: {order}")
     except ValueError:
         print("[!] Invalid input.")
