@@ -59,7 +59,7 @@ def load_components(component_cls, series_cls):
             cid, name, category, price, stock, description, compat = parts
             compatible_with = [int(x) for x in compat.split(",") if x.strip()]
             components.append(component_cls(
-                int(cid), name, category, float(price), int(stock),
+                int(cid), name, category, int(float(price)), int(stock),
                 description, compatible_with
             ))
     return components, series
@@ -88,7 +88,7 @@ def load_orders(order_cls):
     for line in lines:
         order_id, buyer_username, component_id, component_name, quantity, total_price = line.split("|")
         order = order_cls(buyer_username, int(component_id), component_name,
-                           int(quantity), float(total_price))
+                           int(quantity), int(float(total_price)))
         order.order_id = int(order_id)
         max_id = max(max_id, order.order_id)
         orders.append(order)

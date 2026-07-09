@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ component.name }}{% endblock %}
+{% block content %}
+<h2>{{ component.name }}</h2>
+<table class="detail">
+  <tr><th>Category</th><td>{{ component.category }}</td></tr>
+  <tr><th>Price</th><td>{{ component.price|vnd }}</td></tr>
+  <tr><th>Stock</th><td>{{ component.stock }}</td></tr>
+  {% if component.description %}
+  <tr><th>Description</th><td>{{ component.description }}</td></tr>
+  {% endif %}
+</table>
+
+<h3>Compatible PC Series</h3>
+{% if compatible %}
+<ul class="series-list">
+  {% for sid, series in compatible %}
+  <li>{% if series %}{{ series.brand }} {{ series.name }} ({{ series.category }}){% else %}Unknown series ID {{ sid }}{% endif %}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No compatible PC series listed.</p>
+{% endif %}
+
+<h3>Purchase</h3>
+{% if component.stock > 0 %}
+<form method="post" action="{{ url_for('buyer_buy', component_id=component.component_id) }}" class="card">
+  <label>Quantity (available: {{ component.stock }})
+    <input type="number" name="quantity" min="1" max="{{ component.stock }}" required>
+  </label>
+  <button type="submit">Buy</button>
+</form>
+{% else %}
+<p>Out of stock.</p>
+{% endif %}
+
+<p><a href="{{ url_for('buyer_search') }}">Back to Search</a></p>
+{% endblock %}

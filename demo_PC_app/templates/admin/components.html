@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Components Management{% endblock %}
+{% block content %}
+<h2>Components Management</h2>
+<p class="actions">
+  <a href="{{ url_for('admin_add_component') }}">+ Add Component</a>
+  &middot; <a href="{{ url_for('admin_menu') }}">Back to Admin Menu</a>
+</p>
+
+<form method="get" class="search">
+  <input type="text" name="q" placeholder="Search by name or category" value="{{ query }}">
+  <button type="submit">Search</button>
+</form>
+
+<table>
+  <tr>
+    <th>ID</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Compatible Series</th><th></th>
+  </tr>
+  {% for c in components %}
+  <tr>
+    <td>{{ c.component_id }}</td>
+    <td>{{ c.name }}</td>
+    <td>{{ c.category }}</td>
+    <td>{{ c.price|vnd }}</td>
+    <td>{{ c.stock }}</td>
+    <td>{{ c.compatible_with|length }}</td>
+    <td><a href="{{ url_for('admin_component_detail', component_id=c.component_id) }}">View / Edit</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7">No components found.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

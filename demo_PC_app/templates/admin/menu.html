@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Admin Menu{% endblock %}
+{% block content %}
+<h2>Admin Menu</h2>
+<ul class="menu">
+  <li><a href="{{ url_for('admin_components') }}">Components Management</a></li>
+  <li><a href="{{ url_for('admin_orders') }}">Orders Management</a></li>
+</ul>
+{% endblock %}

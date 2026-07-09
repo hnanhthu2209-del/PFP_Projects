@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Buyer Menu{% endblock %}
+{% block content %}
+<h2>Buyer Menu</h2>
+<ul class="menu">
+  <li><a href="{{ url_for('buyer_search') }}">Search Components</a></li>
+  <li><a href="{{ url_for('buyer_orders') }}">View My Orders</a></li>
+</ul>
+{% endblock %}

@@ -1,3 +1,6 @@
+from currency import format_vnd
+
+
 class Component:
     def __init__(self, component_id, name, category, price, stock, description="", compatible_with=None):
         self.component_id = component_id
@@ -10,7 +13,7 @@ class Component:
 
     def __str__(self):
         return (f"[{self.component_id}] {self.name} | Category: {self.category} "
-                f"| Price: ${self.price:.2f} | Stock: {self.stock}")
+                f"| Price: {format_vnd(self.price)} | Stock: {self.stock}")
 
     def detail_str(self, series_resolver=None):
         lines = [str(self)]

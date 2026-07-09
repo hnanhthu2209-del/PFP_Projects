@@ -1,0 +1,191 @@
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #f4f5f7;
+  color: #1f2328;
+  margin: 0;
+}
+
+header {
+  background: #1f6feb;
+  color: white;
+  padding: 1rem 1.5rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.user-bar {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.user-bar a {
+  color: white;
+  text-decoration: underline;
+}
+
+main {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.flashes {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.flash {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.flash-success {
+  background: #d4f4dd;
+  color: #14532d;
+}
+
+.flash-danger {
+  background: #fde2e1;
+  color: #7f1d1d;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  margin-bottom: 0.6rem;
+}
+
+.menu a {
+  display: inline-block;
+  background: white;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 0.7rem 1.2rem;
+  text-decoration: none;
+  color: #1f6feb;
+  min-width: 220px;
+}
+
+.menu a:hover {
+  background: #eef4ff;
+}
+
+a {
+  color: #1f6feb;
+}
+
+.actions {
+  margin-bottom: 1rem;
+}
+
+.card {
+  background: white;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 1.2rem;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+input, select, textarea, button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+button {
+  background: #1f6feb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+}
+
+button:hover {
+  background: #1a5cc4;
+}
+
+.search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.search input {
+  flex: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #eaecef;
+}
+
+th {
+  background: #f0f2f5;
+}
+
+table.detail th {
+  width: 140px;
+}
+
+.series-list {
+  padding-left: 1.2rem;
+}
+
+.inline-form {
+  display: inline;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #d1242f;
+  text-decoration: underline;
+  padding: 0;
+  width: auto;
+}
+
+.link-button:hover {
+  background: none;
+  color: #9a1c22;
+}
+
+.hint {
+  color: #6e7781;
+  font-size: 0.9rem;
+}

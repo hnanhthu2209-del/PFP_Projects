@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Orders Management{% endblock %}
+{% block content %}
+<h2>Orders Management</h2>
+<p class="actions">
+  <a href="{{ url_for('admin_add_order') }}">+ Add Order (manual)</a>
+  &middot; <a href="{{ url_for('admin_menu') }}">Back to Admin Menu</a>
+</p>
+
+<form method="get" class="search">
+  <input type="text" name="q" placeholder="Search by buyer or component name" value="{{ query }}">
+  <button type="submit">Search</button>
+</form>
+
+<table>
+  <tr><th>Order #</th><th>Buyer</th><th>Component</th><th>Qty</th><th>Total</th></tr>
+  {% for o in orders %}
+  <tr>
+    <td>{{ o.order_id }}</td>
+    <td>{{ o.buyer_username }}</td>
+    <td>{{ o.component_name }}</td>
+    <td>{{ o.quantity }}</td>
+    <td>{{ o.total_price|vnd }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5">No orders found.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,3 +1,6 @@
+from currency import format_vnd
+
+
 class Order:
     _next_id = 1
 
@@ -12,4 +15,4 @@ class Order:
 
     def __str__(self):
         return (f"Order #{self.order_id} | Buyer: {self.buyer_username} "
-                f"| {self.component_name} x{self.quantity} | Total: ${self.total_price:.2f}")
+                f"| {self.component_name} x{self.quantity} | Total: {format_vnd(self.total_price)}")

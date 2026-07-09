@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Add Order{% endblock %}
+{% block content %}
+<h2>Add Order (Manual)</h2>
+<form method="post" class="card">
+  <label>Buyer Username
+    <input type="text" name="buyer" required>
+  </label>
+  <label>Component
+    <select name="component_id" required>
+      {% for c in components %}
+      <option value="{{ c.component_id }}">[{{ c.component_id }}] {{ c.name }} (stock: {{ c.stock }})</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Quantity
+    <input type="number" min="1" name="quantity" required>
+  </label>
+  <div class="actions">
+    <button type="submit">Add Order</button>
+    <a href="{{ url_for('admin_orders') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

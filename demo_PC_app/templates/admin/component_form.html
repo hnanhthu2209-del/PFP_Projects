@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Add Component{% endblock %}
+{% block content %}
+<h2>Add Component</h2>
+<form method="post" class="card">
+  <label>Name
+    <input type="text" name="name" required>
+  </label>
+  <label>Category
+    <input type="text" name="category" placeholder="CPU / GPU / RAM / Storage / Motherboard / PSU / Other" required>
+  </label>
+  <label>Price (VND)
+    <input type="number" step="1000" min="0" name="price" required>
+  </label>
+  <label>Stock
+    <input type="number" min="0" name="stock" required>
+  </label>
+  <label>Description
+    <textarea name="description" rows="3"></textarea>
+  </label>
+  <div class="actions">
+    <button type="submit">Add Component</button>
+    <a href="{{ url_for('admin_components') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -49,7 +49,7 @@ def _add_component():
     try:
         name = input("Name: ").strip()
         category = input("Category (CPU/GPU/RAM/Storage/Motherboard/PSU/Other): ").strip()
-        price = float(input("Price ($): ").strip())
+        price = int(float(input("Price (VND): ").strip()))
         stock = int(input("Stock quantity: ").strip())
         cid = store.get_next_component_id()
         component = Component(cid, name, category, price, stock)
