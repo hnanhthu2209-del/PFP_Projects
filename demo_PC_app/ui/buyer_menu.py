@@ -43,8 +43,7 @@ def buyer_menu(user):
 def _search_and_buy(buyer_username):
     print("\n--- SEARCH COMPONENTS ---")
     keyword = input("Enter keyword (name or category): ").strip().lower()
-    results = [c for c in store.components
-               if keyword in c.name.lower() or keyword in c.category.lower()]
+    results = [c for c in store.components if store.component_matches(c, keyword)]
     if not results:
         print("No components found.")
         return
@@ -87,8 +86,11 @@ def _search_and_buy(buyer_username):
                               component.name, qty, total)
                 store.orders.append(order)
                 component.stock -= qty
-                store.save_orders()
-                store.save_components()
-                print(f"[✓] Order placed! {order}")
+                orders_saved = store.save_orders()
+                components_saved = store.save_components()
+                if orders_saved and components_saved:
+                    print(f"[✓] Order placed! {order}")
+                else:
+                    print(f"[!] Order placed, but saving to file failed: {order}")
     except ValueError:
         print("[!] Invalid input.")

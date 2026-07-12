@@ -54,8 +54,10 @@ def _add_component():
         cid = store.get_next_component_id()
         component = Component(cid, name, category, price, stock)
         store.components.append(component)
-        store.save_components()
-        print(f"[✓] Component added: {component}")
+        if store.save_components():
+            print(f"[✓] Component added: {component}")
+        else:
+            print(f"[!] Component added, but saving to file failed: {component}")
     except ValueError:
         print("[!] Invalid input. Component not added.")
 
@@ -132,8 +134,10 @@ def _manage_compatible_products():
                 component.compatible_with.append(sid)
                 added.append(str(s))
         if added:
-            store.save_components()
-            print(f"[✓] Added: {', '.join(added)}")
+            if store.save_components():
+                print(f"[✓] Added: {', '.join(added)}")
+            else:
+                print(f"[!] Added, but saving to file failed: {', '.join(added)}")
 
     elif sub == "2":
         if not component.compatible_with:
@@ -147,8 +151,10 @@ def _manage_compatible_products():
             if 0 <= idx < len(component.compatible_with):
                 removed_id = component.compatible_with.pop(idx)
                 s = store.find_series_by_id(removed_id)
-                store.save_components()
-                print(f"[✓] Removed: {s if s else removed_id}")
+                if store.save_components():
+                    print(f"[✓] Removed: {s if s else removed_id}")
+                else:
+                    print(f"[!] Removed, but saving to file failed: {s if s else removed_id}")
             else:
                 print("[!] Invalid selection.")
         except ValueError:
@@ -156,8 +162,10 @@ def _manage_compatible_products():
 
     elif sub == "3":
         component.compatible_with.clear()
-        store.save_components()
-        print("[✓] All compatible PC series cleared.")
+        if store.save_components():
+            print("[✓] All compatible PC series cleared.")
+        else:
+            print("[!] Cleared, but saving to file failed.")
 
     elif sub == "4":
         return
@@ -168,8 +176,7 @@ def _manage_compatible_products():
 def _search_components():
     print("\n--- SEARCH COMPONENTS ---")
     keyword = input("Enter keyword (name or category): ").strip().lower()
-    results = [c for c in store.components
-               if keyword in c.name.lower() or keyword in c.category.lower()]
+    results = [c for c in store.components if store.component_matches(c, keyword)]
     if not results:
         print("No components found.")
     else:
@@ -231,9 +238,12 @@ def _add_order():
         order = Order(buyer, component.component_id, component.name, qty, total)
         store.orders.append(order)
         component.stock -= qty
-        store.save_orders()
-        store.save_components()
-        print(f"[✓] Order added: {order}")
+        orders_saved = store.save_orders()
+        components_saved = store.save_components()
+        if orders_saved and components_saved:
+            print(f"[✓] Order added: {order}")
+        else:
+            print(f"[!] Order added, but saving to file failed: {order}")
     except ValueError:
         print("[!] Invalid input.")
 

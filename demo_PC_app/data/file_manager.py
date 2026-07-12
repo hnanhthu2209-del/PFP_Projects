@@ -8,10 +8,11 @@ ORDERS_FILE = os.path.join(_DATA_DIR, "orders.txt")
 
 
 def _read_lines(path):
-    if not os.path.exists(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return [line.rstrip("\n") for line in f if line.strip()]
+    except FileNotFoundError:
         return None
-    with open(path, "r", encoding="utf-8") as f:
-        return [line.rstrip("\n") for line in f if line.strip()]
 
 
 # ── USERS ───────────────────────────────────────────────────────────────────
@@ -31,9 +32,14 @@ def load_users(user_cls):
 
 
 def save_users(users):
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        for u in users:
-            f.write(f"{u.username}|{u.password}|{u.role}\n")
+    try:
+        with open(USERS_FILE, "w", encoding="utf-8") as f:
+            for u in users:
+                f.write(f"{u.username}|{u.password}|{u.role}\n")
+        return True
+    except OSError as e:
+        print(f"[!] Could not save users.txt: {e}")
+        return False
 
 
 # ── COMPONENTS & PC MODEL SERIES (single file) ──────────────────────────────
@@ -72,14 +78,19 @@ def load_components(component_cls, series_cls):
 
 
 def save_components(components, series):
-    with open(COMPONENTS_FILE, "w", encoding="utf-8") as f:
-        f.write("[SERIES]\n")
-        for s in series:
-            f.write(f"{s.series_id}|{s.brand}|{s.name}|{s.category}\n")
-        f.write("[COMPONENTS]\n")
-        for c in components:
-            compat = ",".join(str(sid) for sid in c.compatible_with)
-            f.write(f"{c.component_id}|{c.name}|{c.category}|{c.price}|{c.stock}|{c.description}|{compat}\n")
+    try:
+        with open(COMPONENTS_FILE, "w", encoding="utf-8") as f:
+            f.write("[SERIES]\n")
+            for s in series:
+                f.write(f"{s.series_id}|{s.brand}|{s.name}|{s.category}\n")
+            f.write("[COMPONENTS]\n")
+            for c in components:
+                compat = ",".join(str(sid) for sid in c.compatible_with)
+                f.write(f"{c.component_id}|{c.name}|{c.category}|{c.price}|{c.stock}|{c.description}|{compat}\n")
+        return True
+    except OSError as e:
+        print(f"[!] Could not save components.txt: {e}")
+        return False
 
 
 # ── ORDERS ──────────────────────────────────────────────────────────────────
@@ -108,7 +119,12 @@ def load_orders(order_cls):
 
 
 def save_orders(orders):
-    with open(ORDERS_FILE, "w", encoding="utf-8") as f:
-        for o in orders:
-            f.write(f"{o.order_id}|{o.buyer_username}|{o.component_id}|"
-                     f"{o.component_name}|{o.quantity}|{o.total_price}\n")
+    try:
+        with open(ORDERS_FILE, "w", encoding="utf-8") as f:
+            for o in orders:
+                f.write(f"{o.order_id}|{o.buyer_username}|{o.component_id}|"
+                         f"{o.component_name}|{o.quantity}|{o.total_price}\n")
+        return True
+    except OSError as e:
+        print(f"[!] Could not save orders.txt: {e}")
+        return False

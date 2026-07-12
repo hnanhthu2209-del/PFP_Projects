@@ -65,7 +65,7 @@ def admin_components():
     query = request.args.get("q", "").strip().lower()
     components = []
     for c in store.components:
-        if query == "" or query in c.name.lower() or query in c.category.lower():
+        if query == "" or store.component_matches(c, query):
             components.append(c)
     return render_template("admin/components.html", components=components, query=query)
 
@@ -84,8 +84,10 @@ def admin_add_component():
             description = request.form.get("description", "").strip()
             component = Component(store.get_next_component_id(), name, category, price, stock, description)
             store.components.append(component)
-            store.save_components()
-            flash("Component added: " + component.name, "success")
+            if store.save_components():
+                flash("Component added: " + component.name, "success")
+            else:
+                flash("Component added, but saving to file failed.", "danger")
             return redirect(url_for("admin_components"))
         except ValueError:
             flash("Invalid input. Component not added.", "danger")
@@ -131,8 +133,10 @@ def admin_add_compatible(component_id):
                 flash("That series is already linked.", "danger")
             else:
                 component.compatible_with.append(series_id)
-                store.save_components()
-                flash("Compatible series added.", "success")
+                if store.save_components():
+                    flash("Compatible series added.", "success")
+                else:
+                    flash("Compatible series added, but saving to file failed.", "danger")
         except ValueError:
             flash("Invalid series.", "danger")
     return redirect(url_for("admin_component_detail", component_id=component_id))
@@ -146,8 +150,10 @@ def admin_remove_compatible(component_id, series_id):
     component = store.find_component_by_id(component_id)
     if component is not None and series_id in component.compatible_with:
         component.compatible_with.remove(series_id)
-        store.save_components()
-        flash("Compatible series removed.", "success")
+        if store.save_components():
+            flash("Compatible series removed.", "success")
+        else:
+            flash("Compatible series removed, but saving to file failed.", "danger")
     return redirect(url_for("admin_component_detail", component_id=component_id))
 
 
@@ -159,8 +165,10 @@ def admin_clear_compatible(component_id):
     component = store.find_component_by_id(component_id)
     if component is not None:
         component.compatible_with.clear()
-        store.save_components()
-        flash("All compatible series cleared.", "success")
+        if store.save_components():
+            flash("All compatible series cleared.", "success")
+        else:
+            flash("Cleared, but saving to file failed.", "danger")
     return redirect(url_for("admin_component_detail", component_id=component_id))
 
 
@@ -198,9 +206,12 @@ def admin_add_order():
                 order = Order(buyer, component.component_id, component.name, qty, total)
                 store.orders.append(order)
                 component.stock -= qty
-                store.save_orders()
-                store.save_components()
-                flash("Order added: " + str(order), "success")
+                orders_saved = store.save_orders()
+                components_saved = store.save_components()
+                if orders_saved and components_saved:
+                    flash("Order added: " + str(order), "success")
+                else:
+                    flash("Order added, but saving to file failed.", "danger")
                 return redirect(url_for("admin_orders"))
         except ValueError:
             flash("Invalid input.", "danger")
@@ -225,7 +236,7 @@ def buyer_search():
     components = []
     if query != "":
         for c in store.components:
-            if query in c.name.lower() or query in c.category.lower():
+            if store.component_matches(c, query):
                 components.append(c)
     return render_template("buyer/search.html", components=components, query=query)
 
@@ -268,9 +279,12 @@ def buyer_buy(component_id):
             order = Order(session["username"], component.component_id, component.name, qty, total)
             store.orders.append(order)
             component.stock -= qty
-            store.save_orders()
-            store.save_components()
-            flash("Order placed! " + str(order), "success")
+            orders_saved = store.save_orders()
+            components_saved = store.save_components()
+            if orders_saved and components_saved:
+                flash("Order placed! " + str(order), "success")
+            else:
+                flash("Order placed, but saving to file failed.", "danger")
     except ValueError:
         flash("Invalid input.", "danger")
     return redirect(url_for("buyer_component_detail", component_id=component_id))

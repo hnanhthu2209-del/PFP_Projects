@@ -19,15 +19,15 @@ _component_next_id = max((c.component_id for c in components), default=0) + 1
 
 
 def save_users():
-    file_manager.save_users(users)
+    return file_manager.save_users(users)
 
 
 def save_components():
-    file_manager.save_components(components, pc_model_series)
+    return file_manager.save_components(components, pc_model_series)
 
 
 def save_orders():
-    file_manager.save_orders(orders)
+    return file_manager.save_orders(orders)
 
 
 def get_next_component_id():
@@ -56,3 +56,12 @@ def find_series_by_id(series_id):
         if s.series_id == series_id:
             return s
     return None
+
+
+def component_matches(component, keyword):
+    # Spaces are ignored on both sides, so a keyword like "rtx4090" still
+    # matches a name like "NVIDIA RTX 4090".
+    keyword = keyword.replace(" ", "")
+    name = component.name.lower().replace(" ", "")
+    category = component.category.lower().replace(" ", "")
+    return keyword in name or keyword in category
