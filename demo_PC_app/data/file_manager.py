@@ -22,8 +22,11 @@ def load_users(user_cls):
         return None
     users = []
     for line in lines:
-        username, password, role = line.split("|")
-        users.append(user_cls(username, password, role))
+        try:
+            username, password, role = line.split("|")
+            users.append(user_cls(username, password, role))
+        except ValueError:
+            print(f"[!] Skipping invalid line in users.txt: {line}")
     return users
 
 
@@ -51,17 +54,20 @@ def load_components(component_cls, series_cls):
             section = "components"
             continue
 
-        parts = line.split("|")
-        if section == "series":
-            series_id, brand, name, category = parts
-            series.append(series_cls(int(series_id), brand, name, category))
-        elif section == "components":
-            cid, name, category, price, stock, description, compat = parts
-            compatible_with = [int(x) for x in compat.split(",") if x.strip()]
-            components.append(component_cls(
-                int(cid), name, category, int(float(price)), int(stock),
-                description, compatible_with
-            ))
+        try:
+            parts = line.split("|")
+            if section == "series":
+                series_id, brand, name, category = parts
+                series.append(series_cls(int(series_id), brand, name, category))
+            elif section == "components":
+                cid, name, category, price, stock, description, compat = parts
+                compatible_with = [int(x) for x in compat.split(",") if x.strip()]
+                components.append(component_cls(
+                    int(cid), name, category, int(float(price)), int(stock),
+                    description, compatible_with
+                ))
+        except ValueError:
+            print(f"[!] Skipping invalid line in components.txt: {line}")
     return components, series
 
 
@@ -86,10 +92,14 @@ def load_orders(order_cls):
     orders = []
     max_id = 0
     for line in lines:
-        order_id, buyer_username, component_id, component_name, quantity, total_price = line.split("|")
-        order = order_cls(buyer_username, int(component_id), component_name,
-                           int(quantity), int(float(total_price)))
-        order.order_id = int(order_id)
+        try:
+            order_id, buyer_username, component_id, component_name, quantity, total_price = line.split("|")
+            order = order_cls(buyer_username, int(component_id), component_name,
+                               int(quantity), int(float(total_price)))
+            order.order_id = int(order_id)
+        except ValueError:
+            print(f"[!] Skipping invalid line in orders.txt: {line}")
+            continue
         max_id = max(max_id, order.order_id)
         orders.append(order)
 
