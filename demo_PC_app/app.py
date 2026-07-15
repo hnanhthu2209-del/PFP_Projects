@@ -258,38 +258,6 @@ def buyer_component_detail(component_id):
     return render_template("buyer/component_detail.html", component=component, compatible=compatible)
 
 
-@app.route("/buyer/components/<int:component_id>/buy", methods=["POST"])
-def buyer_buy(component_id):
-    if "username" not in session or session["role"] != "buyer":
-        return redirect(url_for("login"))
-
-    component = store.find_component_by_id(component_id)
-    if component is None:
-        flash("Component not found.", "danger")
-        return redirect(url_for("buyer_search"))
-
-    try:
-        qty = int(request.form["quantity"])
-        if component.stock <= 0:
-            flash("Out of stock.", "danger")
-        elif qty <= 0 or qty > component.stock:
-            flash("Invalid quantity.", "danger")
-        else:
-            total = qty * component.price
-            order = Order(session["username"], component.component_id, component.name, qty, total)
-            store.orders.append(order)
-            component.stock -= qty
-            orders_saved = store.save_orders()
-            components_saved = store.save_components()
-            if orders_saved and components_saved:
-                flash("Order placed! " + str(order), "success")
-            else:
-                flash("Order placed, but saving to file failed.", "danger")
-    except ValueError:
-        flash("Invalid input.", "danger")
-    return redirect(url_for("buyer_component_detail", component_id=component_id))
-
-
 @app.route("/buyer/orders")
 def buyer_orders():
     if "username" not in session or session["role"] != "buyer":

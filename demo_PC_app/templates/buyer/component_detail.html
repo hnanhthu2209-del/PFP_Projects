@@ -22,17 +22,5 @@
 <p>No compatible PC series listed.</p>
 {% endif %}
 
-<h3>Purchase</h3>
-{% if component.stock > 0 %}
-<form method="post" action="{{ url_for('buyer_buy', component_id=component.component_id) }}" class="card">
-  <label>Quantity (available: {{ component.stock }})
-    <input type="number" name="quantity" min="1" max="{{ component.stock }}" required>
-  </label>
-  <button type="submit">Buy</button>
-</form>
-{% else %}
-<p>Out of stock.</p>
-{% endif %}
-
 <p><a href="{{ url_for('buyer_search') }}">Back to Search</a></p>
 {% endblock %}

@@ -1,5 +1,5 @@
 import data.store as store
-from models.order import Order
+from currency import format_vnd
 
 
 def view_orders(buyer_username):
@@ -12,13 +12,7 @@ def view_orders(buyer_username):
             print(" ", o)
 
 
-_current_buyer = ""
-
-
 def buyer_menu(user):
-    global _current_buyer
-    _current_buyer = user.username
-
     while True:
         print("\n" + "=" * 50)
         print(f"  BUYER MENU  |  Logged in as: {user.username}")
@@ -30,7 +24,7 @@ def buyer_menu(user):
         choice = input("Select option: ").strip()
 
         if choice == "1":
-            _search_and_buy(user.username)
+            _search_components()
         elif choice == "2":
             view_orders(user.username)
         elif choice == "3":
@@ -40,7 +34,7 @@ def buyer_menu(user):
             print("[!] Invalid option.")
 
 
-def _search_and_buy(buyer_username):
+def _search_components():
     print("\n--- SEARCH COMPONENTS ---")
     keyword = input("Enter keyword (name or category): ").strip().lower()
     results = [c for c in store.components if store.component_matches(c, keyword)]
@@ -50,47 +44,11 @@ def _search_and_buy(buyer_username):
 
     print(f"\nFound {len(results)} result(s):")
     for c in results:
-        print(" ", c)
-
-    detail = input("\nEnter component ID to view details & compatible PC series (or press Enter to skip): ").strip()
-    if detail:
-        try:
-            dcid = int(detail)
-            dc = store.find_component_by_id(dcid)
-            if dc is None:
-                print("[!] Component not found.")
-            else:
-                print("\n" + "=" * 50)
-                print(dc.detail_str(store.find_series_by_id))
-                print("=" * 50)
-        except ValueError:
-            print("[!] Invalid input.")
-
-    buy = input("\nEnter component ID to purchase (or press Enter to skip): ").strip()
-    if not buy:
-        return
-    try:
-        cid = int(buy)
-        component = store.find_component_by_id(cid)
-        if component is None:
-            print("[!] Component not found.")
-        elif component.stock <= 0:
-            print("[!] Out of stock.")
+        print(f"  [{c.component_id}] {c.name} | Category: {c.category} | Price: {format_vnd(c.price)}")
+        if c.compatible_with:
+            print("    Compatible PC series:")
+            for sid in c.compatible_with:
+                s = store.find_series_by_id(sid)
+                print(f"      - {s if s else f'[Unknown ID {sid}]'}")
         else:
-            qty = int(input(f"Enter quantity (available: {component.stock}): ").strip())
-            if qty <= 0 or qty > component.stock:
-                print("[!] Invalid quantity.")
-            else:
-                total = qty * component.price
-                order = Order(buyer_username, component.component_id,
-                              component.name, qty, total)
-                store.orders.append(order)
-                component.stock -= qty
-                orders_saved = store.save_orders()
-                components_saved = store.save_components()
-                if orders_saved and components_saved:
-                    print(f"[✓] Order placed! {order}")
-                else:
-                    print(f"[!] Order placed, but saving to file failed: {order}")
-    except ValueError:
-        print("[!] Invalid input.")
+            print("    Compatible PC series: none listed")
