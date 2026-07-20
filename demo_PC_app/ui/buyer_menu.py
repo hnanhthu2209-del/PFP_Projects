@@ -31,7 +31,7 @@ def buyer_menu(user):
             print("\n[✓] Logged out.")
             return
         else:
-            print("[!] Invalid option.")
+            print("[!] No orders found.")
 
 
 def _search_components():
