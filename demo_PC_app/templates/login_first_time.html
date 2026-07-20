@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}First Time Log In?{% endblock %}
+{% block content %}
+<h2>First time log in?</h2>
+<p>Role: {{ role }}</p>
+<form method="post" class="card">
+  <label class="radio-option"><input type="radio" name="first_time" value="yes" required> Yes, create a new account</label>
+  <label class="radio-option"><input type="radio" name="first_time" value="no"> No, I already have an account</label>
+  <button type="submit">Continue</button>
+</form>
+{% endblock %}

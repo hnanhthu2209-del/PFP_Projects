@@ -110,12 +110,24 @@ a {
   font-size: 0.9rem;
 }
 
+.card label.radio-option {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 input, select, textarea, button {
   font-size: 1rem;
   padding: 0.5rem;
   border: 1px solid #d0d7de;
   border-radius: 6px;
   font-family: inherit;
+}
+
+input[type="radio"] {
+  width: auto;
+  padding: 0;
+  border: none;
 }
 
 button {

@@ -4,6 +4,7 @@ import data.store as store
 from currency import format_vnd
 from models.component import Component
 from models.order import Order
+from models.user import User
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -25,19 +26,73 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        role = request.form.get("role")
+        if role not in ("admin", "buyer"):
+            flash("Please choose a role.", "danger")
+            return render_template("login.html")
+        session["pending_role"] = role
+        return redirect(url_for("login_first_time"))
+    return render_template("login.html")
+
+
+@app.route("/login/first-time", methods=["GET", "POST"])
+def login_first_time():
+    role = session.get("pending_role")
+    if role not in ("admin", "buyer"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        if request.form.get("first_time") == "yes":
+            return redirect(url_for("register"))
+        else:
+            return redirect(url_for("login_existing"))
+    return render_template("login_first_time.html", role=role)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    role = session.get("pending_role")
+    if role not in ("admin", "buyer"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        username = request.form["username"].strip()
+        password = request.form["password"].strip()
+        if store.find_user(username) is not None:
+            flash("That username is already taken. Try another.", "danger")
+            return render_template("register.html", role=role)
+        new_user = User(username, password, role)
+        store.users.append(new_user)
+        if store.save_users():
+            flash("Registration successful! You can now log in.", "success")
+        else:
+            flash("Registered, but saving to file failed.", "danger")
+        return redirect(url_for("login_existing"))
+    return render_template("register.html", role=role)
+
+
+@app.route("/login/existing", methods=["GET", "POST"])
+def login_existing():
+    role = session.get("pending_role")
+    if role not in ("admin", "buyer"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
         username = request.form["username"].strip()
         password = request.form["password"].strip()
         user = store.find_user(username)
-        if user is None or user.password != password:
+        if user is None or user.password != password or user.role != role:
             flash("Invalid username or password.", "danger")
-            return render_template("login.html")
+            return render_template("login_existing.html", role=role)
+        session.pop("pending_role", None)
         session["username"] = user.username
         session["role"] = user.role
+        flash(f"Login successful! Welcome, {user.username} ({user.role.upper()})", "success")
         if user.role == "admin":
             return redirect(url_for("admin_menu"))
         else:
             return redirect(url_for("buyer_menu"))
-    return render_template("login.html")
+    return render_template("login_existing.html", role=role)
 
 
 @app.route("/logout")
@@ -79,7 +134,11 @@ def admin_add_component():
         try:
             name = request.form["name"].strip()
             category = request.form["category"].strip()
-            price = int(float(request.form["price"]))
+            price = float(request.form["price"])
+            if price < 1000 or price != int(price):
+                flash("Please enter the valid input", "danger")
+                return render_template("admin/component_form.html")
+            price = int(price)
             stock = int(request.form["stock"])
             description = request.form.get("description", "").strip()
             component = Component(store.get_next_component_id(), name, category, price, stock, description)

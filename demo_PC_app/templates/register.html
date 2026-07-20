@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+<h2>Create New Account ({{ role }})</h2>
+<form method="post" class="card">
+  <label>Username
+    <input type="text" name="username" required autofocus>
+  </label>
+  <label>Password
+    <input type="password" name="password" required>
+  </label>
+  <button type="submit">Create Account</button>
+</form>
+{% endblock %}
