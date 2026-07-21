@@ -4,7 +4,7 @@ import data.store as store
 from currency import format_vnd
 from models.component import Component
 from models.order import Order
-from models.user import User
+from models.user import create_user
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -61,7 +61,7 @@ def register():
         if store.find_user(username) is not None:
             flash("That username is already taken. Try another.", "danger")
             return render_template("register.html", role=role)
-        new_user = User(username, password, role)
+        new_user = create_user(username, password, role)
         store.users.append(new_user)
         if store.save_users():
             flash("Registration successful! You can now log in.", "success")
@@ -241,8 +241,13 @@ def admin_orders():
     query = request.args.get("q", "").strip().lower()
     orders = []
     for o in store.orders:
-        if query == "" or query in o.buyer_username.lower() or query in o.component_name.lower():
+        if query == "" or query in o.buyer_username.lower():
             orders.append(o)
+            continue
+        for component_id, component_name, quantity, subtotal in o.items:
+            if query in component_name.lower():
+                orders.append(o)
+                break
     return render_template("admin/orders.html", orders=orders, query=query)
 
 
@@ -252,29 +257,69 @@ def admin_add_order():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        try:
-            buyer = request.form["buyer"].strip()
-            component = store.find_component_by_id(int(request.form["component_id"]))
-            qty = int(request.form["quantity"])
-            if component is None:
-                flash("Component not found.", "danger")
-            elif qty <= 0 or qty > component.stock:
-                flash("Invalid quantity.", "danger")
+        action = request.form.get("action")
+
+        if action == "set_buyer":
+            session["pending_order_buyer"] = request.form["buyer"].strip()
+
+        elif action == "add_item":
+            items = session.get("pending_order_items", [])
+            try:
+                component = store.find_component_by_id(int(request.form["component_id"]))
+                qty = int(request.form["quantity"])
+                if component is None:
+                    flash("Component not found.", "danger")
+                else:
+                    already_added = sum(item[2] for item in items if item[0] == component.component_id)
+                    available = component.stock - already_added
+                    if qty <= 0 or qty > available:
+                        flash("Invalid quantity.", "danger")
+                    else:
+                        subtotal = qty * component.price
+                        items.append([component.component_id, component.name, qty, subtotal])
+                        session["pending_order_items"] = items
+                        flash(f"Added: {component.name} x{qty}", "success")
+            except ValueError:
+                flash("Invalid input.", "danger")
+
+        elif action == "finish":
+            items = session.get("pending_order_items", [])
+            buyer = session.get("pending_order_buyer", "").strip()
+            if not buyer:
+                flash("Enter a buyer username first.", "danger")
+            elif not items:
+                flash("Add at least one item before finishing.", "danger")
             else:
-                total = qty * component.price
-                order = Order(buyer, component.component_id, component.name, qty, total)
+                for component_id, component_name, qty, subtotal in items:
+                    component = store.find_component_by_id(component_id)
+                    if component is not None:
+                        component.stock -= qty
+                order = Order(buyer, [tuple(item) for item in items])
                 store.orders.append(order)
-                component.stock -= qty
                 orders_saved = store.save_orders()
                 components_saved = store.save_components()
+                session.pop("pending_order_items", None)
+                session.pop("pending_order_buyer", None)
                 if orders_saved and components_saved:
                     flash("Order added: " + str(order), "success")
                 else:
                     flash("Order added, but saving to file failed.", "danger")
                 return redirect(url_for("admin_orders"))
-        except ValueError:
-            flash("Invalid input.", "danger")
-    return render_template("admin/order_form.html", components=store.components)
+
+        elif action == "cancel":
+            session.pop("pending_order_items", None)
+            session.pop("pending_order_buyer", None)
+            flash("Order cancelled.", "danger")
+            return redirect(url_for("admin_orders"))
+
+        return redirect(url_for("admin_add_order"))
+
+    return render_template(
+        "admin/order_form.html",
+        components=store.components,
+        items=session.get("pending_order_items", []),
+        buyer=session.get("pending_order_buyer", ""),
+    )
 
 
 # ── BUYER: MENU ──────────────────────────────────────────────────────────────

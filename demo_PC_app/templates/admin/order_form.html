@@ -2,10 +2,32 @@
 {% block title %}Add Order{% endblock %}
 {% block content %}
 <h2>Add Order (Manual)</h2>
+
 <form method="post" class="card">
+  <input type="hidden" name="action" value="set_buyer">
   <label>Buyer Username
-    <input type="text" name="buyer" required>
+    <input type="text" name="buyer" value="{{ buyer }}" required>
   </label>
+  <button type="submit">Set Buyer</button>
+</form>
+
+{% if items %}
+<h3>Items in this order</h3>
+<table>
+  <tr><th>Component</th><th>Qty</th><th>Subtotal</th></tr>
+  {% for component_id, component_name, quantity, subtotal in items %}
+  <tr>
+    <td>{{ component_name }}</td>
+    <td>{{ quantity }}</td>
+    <td>{{ subtotal|vnd }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h3>Add a Component</h3>
+<form method="post" class="card">
+  <input type="hidden" name="action" value="add_item">
   <label>Component
     <select name="component_id" required>
       {% for c in components %}
@@ -16,9 +38,18 @@
   <label>Quantity
     <input type="number" min="1" name="quantity" required>
   </label>
-  <div class="actions">
-    <button type="submit">Add Order</button>
-    <a href="{{ url_for('admin_orders') }}">Cancel</a>
-  </div>
+  <button type="submit">Add to Order</button>
 </form>
+
+<div class="actions">
+  <form method="post" class="inline-form">
+    <input type="hidden" name="action" value="finish">
+    <button type="submit">Finish Order</button>
+  </form>
+  <form method="post" class="inline-form">
+    <input type="hidden" name="action" value="cancel">
+    <button type="submit">Cancel</button>
+  </form>
+  <a href="{{ url_for('admin_orders') }}">Back to Orders</a>
+</div>
 {% endblock %}

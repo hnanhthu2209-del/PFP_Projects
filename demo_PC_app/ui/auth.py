@@ -1,5 +1,5 @@
 import data.store as store
-from models.user import User
+from models.user import create_user
 
 
 def login():
@@ -47,7 +47,7 @@ def _register(role):
         break
 
     password = input("Choose a password: ").strip()
-    new_user = User(username, password, role)
+    new_user = create_user(username, password, role)
     store.users.append(new_user)
     if store.save_users():
         print(f"[✓] Registration successful! You can now log in as {username}.")

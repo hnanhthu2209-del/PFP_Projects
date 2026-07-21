@@ -204,38 +204,73 @@ def _show_all_orders():
 
 def _add_order():
     print("\n--- ADD ORDER (MANUAL) ---")
-    try:
-        buyer = input("Buyer username: ").strip()
+    buyer = input("Buyer username: ").strip()
+    items = []
+
+    while True:
         _show_all_components()
-        cid = int(input("Component ID: ").strip())
+        try:
+            cid = int(input("\nComponent ID (or 0 to finish adding items): ").strip())
+        except ValueError:
+            print("[!] Invalid input.")
+            continue
+
+        if cid == 0:
+            break
+
         component = store.find_component_by_id(cid)
         if component is None:
             print("[!] Component not found.")
-            return
-        qty = int(input(f"Quantity (available: {component.stock}): ").strip())
-        if qty <= 0 or qty > component.stock:
+            continue
+
+        already_added = sum(qty for item_cid, name, qty, sub in items if item_cid == component.component_id)
+        available = component.stock - already_added
+
+        try:
+            qty = int(input(f"Quantity (available: {available}): ").strip())
+        except ValueError:
+            print("[!] Invalid input.")
+            continue
+
+        if qty <= 0 or qty > available:
             print("[!] Invalid quantity.")
-            return
-        total = qty * component.price
-        order = Order(buyer, component.component_id, component.name, qty, total)
-        store.orders.append(order)
+            continue
+
+        subtotal = qty * component.price
+        items.append((component.component_id, component.name, qty, subtotal))
+        print(f"[✓] Added to order: {component.name} x{qty}")
+
+    if not items:
+        print("[!] No items added. Order cancelled.")
+        return
+
+    for component_id, component_name, qty, subtotal in items:
+        component = store.find_component_by_id(component_id)
         component.stock -= qty
-        orders_saved = store.save_orders()
-        components_saved = store.save_components()
-        if orders_saved and components_saved:
-            print(f"[✓] Order added: {order}")
-            print("Warranty stock: 2 years start from now")
-        else:
-            print(f"[!] Order added, but saving to file failed: {order}")
-    except ValueError:
-        print("[!] Invalid input.")
+
+    order = Order(buyer, items)
+    store.orders.append(order)
+    orders_saved = store.save_orders()
+    components_saved = store.save_components()
+    if orders_saved and components_saved:
+        print(f"[✓] Order added:\n{order}")
+        print("Warranty stock: 2 years start from now")
+    else:
+        print(f"[!] Order added, but saving to file failed:\n{order}")
 
 
 def _search_orders():
     print("\n--- SEARCH ORDERS ---")
     keyword = input("Enter buyer username or component name: ").strip().lower()
-    results = [o for o in store.orders
-               if keyword in o.buyer_username.lower() or keyword in o.component_name.lower()]
+    results = []
+    for o in store.orders:
+        if keyword in o.buyer_username.lower():
+            results.append(o)
+            continue
+        for component_id, component_name, quantity, subtotal in o.items:
+            if keyword in component_name.lower():
+                results.append(o)
+                break
     if not results:
         print("No orders found.")
     else:

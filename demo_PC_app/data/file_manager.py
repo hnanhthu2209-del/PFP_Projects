@@ -104,9 +104,12 @@ def load_orders(order_cls):
     max_id = 0
     for line in lines:
         try:
-            order_id, buyer_username, component_id, component_name, quantity, total_price = line.split("|")
-            order = order_cls(buyer_username, int(component_id), component_name,
-                               int(quantity), int(float(total_price)))
+            order_id, buyer_username, items_text, total_price = line.split("|")
+            items = []
+            for item_text in items_text.split(";"):
+                component_id, component_name, quantity, subtotal = item_text.split(":")
+                items.append((int(component_id), component_name, int(quantity), int(float(subtotal))))
+            order = order_cls(buyer_username, items)
             order.order_id = int(order_id)
         except ValueError:
             print(f"[!] Skipping invalid line in orders.txt: {line}")
@@ -122,8 +125,11 @@ def save_orders(orders):
     try:
         with open(ORDERS_FILE, "w", encoding="utf-8") as f:
             for o in orders:
-                f.write(f"{o.order_id}|{o.buyer_username}|{o.component_id}|"
-                         f"{o.component_name}|{o.quantity}|{o.total_price}\n")
+                items_text = ";".join(
+                    f"{component_id}:{component_name}:{quantity}:{subtotal}"
+                    for component_id, component_name, quantity, subtotal in o.items
+                )
+                f.write(f"{o.order_id}|{o.buyer_username}|{items_text}|{o.total_price}\n")
         return True
     except OSError as e:
         print(f"[!] Could not save orders.txt: {e}")

@@ -15,7 +15,7 @@ class Component:
         return (f"[{self.component_id}] {self.name} | Category: {self.category} "
                 f"| Price: {format_vnd(self.price)} | Stock: {self.stock}")
 
-    def detail_str(self, series_resolver=None):
+    def detail_str(self, series_resolver=None): #Dùng để hiện thị chi tiết của components
         lines = [str(self)]
         if self.description:
             lines.append(f"    Description : {self.description}")

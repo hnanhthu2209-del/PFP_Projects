@@ -1,4 +1,4 @@
-from models.user import User
+from models.user import create_user
 from models.component import Component
 from models.order import Order
 from models.pc_model_series import PCModelSeries
@@ -7,7 +7,7 @@ from data import file_manager
 # All data lives in the .txt files under data/ (users.txt, components.txt,
 # orders.txt) — nothing is hardcoded here. This module just loads them into
 # memory at startup and exposes save_*() to write changes back to those files.
-users = file_manager.load_users(User) or []
+users = file_manager.load_users(create_user) or []
 
 components, pc_model_series = file_manager.load_components(Component, PCModelSeries)
 components = components or []

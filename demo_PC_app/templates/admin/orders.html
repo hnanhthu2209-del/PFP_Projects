@@ -13,17 +13,20 @@
 </form>
 
 <table>
-  <tr><th>Order #</th><th>Buyer</th><th>Component</th><th>Qty</th><th>Total</th></tr>
+  <tr><th>Order #</th><th>Buyer</th><th>Items</th><th>Total</th></tr>
   {% for o in orders %}
   <tr>
     <td>{{ o.order_id }}</td>
     <td>{{ o.buyer_username }}</td>
-    <td>{{ o.component_name }}</td>
-    <td>{{ o.quantity }}</td>
+    <td>
+      {% for component_id, component_name, quantity, subtotal in o.items %}
+      {{ component_name }} x{{ quantity }}{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </td>
     <td>{{ o.total_price|vnd }}</td>
   </tr>
   {% else %}
-  <tr><td colspan="5">No orders found.</td></tr>
+  <tr><td colspan="4">No orders found.</td></tr>
   {% endfor %}
 </table>
 {% endblock %}
