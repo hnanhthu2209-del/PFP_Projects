@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Edit Component{% endblock %}
+{% block content %}
+<h2>Edit Component</h2>
+<form method="post" class="card">
+  <label>Name
+    <input type="text" name="name" value="{{ component.name }}" required>
+  </label>
+  <label>Category
+    <input type="text" name="category" value="{{ component.category }}" required>
+  </label>
+  <label>Price (VND)
+    <input type="number" step="any" min="0" name="price" value="{{ component.price }}" required>
+  </label>
+  <label>Stock
+    <input type="number" min="0" name="stock" value="{{ component.stock }}" required>
+  </label>
+  <label>Description
+    <textarea name="description" rows="3">{{ component.description }}</textarea>
+  </label>
+  <div class="actions">
+    <button type="submit">Save Changes</button>
+    <a href="{{ url_for('admin_component_detail', component_id=component.component_id) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

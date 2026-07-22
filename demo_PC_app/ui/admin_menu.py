@@ -12,9 +12,11 @@ def components_mgmt():
         print("=" * 50)
         print("  1. Show All Components")
         print("  2. Add Component")
-        print("  3. Search Components")
-        print("  4. Manage Compatible Products")
-        print("  5. Back")
+        print("  3. Edit Component")
+        print("  4. Delete Component")
+        print("  5. Search Components")
+        print("  6. Manage Compatible Products")
+        print("  7. Back")
         print("-" * 50)
         choice = input("Select option: ").strip()
 
@@ -23,10 +25,14 @@ def components_mgmt():
         elif choice == "2":
             _add_component()
         elif choice == "3":
-            _search_components()
+            _edit_component()
         elif choice == "4":
-            _manage_compatible_products()
+            _delete_component()
         elif choice == "5":
+            _search_components()
+        elif choice == "6":
+            _manage_compatible_products()
+        elif choice == "7":
             return
         else:
             print("[!] Invalid option.")
@@ -61,6 +67,88 @@ def _add_component():
     except ValueError:
         print("[!] Invalid input. Component not added.")
 
+
+def _edit_component():
+    print("\n--- EDIT COMPONENT ---")
+    _show_all_components()
+    if not store.components:
+        return
+    try:
+        cid = int(input("\nEnter Component ID to edit: ").strip())
+    except ValueError:
+        print("[!] Invalid ID.")
+        return
+    component = store.find_component_by_id(cid)
+    if component is None:
+        print("[!] Component not found.")
+        return
+
+    print(f"\nEditing: {component}")
+    print("(Press Enter to keep the current value)")
+
+    name = input(f"Name [{component.name}]: ").strip()
+    if name:
+        component.name = name
+
+    category = input(f"Category [{component.category}]: ").strip()
+    if category:
+        component.category = category
+
+    price_input = input(f"Price (VND) [{component.price}]: ").strip()
+    if price_input:
+        try:
+            price = float(price_input)
+        except ValueError:
+            print("[!] Please enter the valid input")
+            return
+        if price < 1000 or price != int(price):
+            print("[!] Please enter the valid input")
+            return
+        component.price = int(price)
+
+    stock_input = input(f"Stock [{component.stock}]: ").strip()
+    if stock_input:
+        try:
+            component.stock = int(stock_input)
+        except ValueError:
+            print("[!] Invalid input.")
+            return
+
+    description = input(f"Description [{component.description}]: ").strip()
+    if description:
+        component.description = description
+
+    if store.save_components():
+        print(f"[✓] Component updated: {component}")
+    else:
+        print(f"[!] Component updated, but saving to file failed: {component}")
+
+
+def _delete_component():
+    print("\n--- DELETE COMPONENT ---")
+    _show_all_components()
+    if not store.components:
+        return
+    try:
+        cid = int(input("\nEnter Component ID to delete: ").strip())
+    except ValueError:
+        print("[!] Invalid ID.")
+        return
+    component = store.find_component_by_id(cid)
+    if component is None:
+        print("[!] Component not found.")
+        return
+
+    confirm = input(f"Type 'yes' to permanently delete '{component.name}': ").strip().lower()
+    if confirm != "yes":
+        print("[!] Cancelled.")
+        return
+
+    store.components.remove(component)
+    if store.save_components():
+        print(f"[✓] Component permanently deleted: {component.name}")
+    else:
+        print("[!] Deleted from memory, but saving to file failed.")
 
 
 def _show_all_series():

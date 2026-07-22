@@ -16,10 +16,10 @@ app.jinja_env.filters["vnd"] = format_vnd
 @app.route("/")
 def index():
     if "username" in session:
-        if session["role"] == "admin":
-            return redirect(url_for("admin_menu"))
-        else:
-            return redirect(url_for("buyer_menu"))
+        user = store.find_user(session["username"])
+        if user is not None:
+            return redirect(url_for(user.get_menu_route()))
+        session.clear()
     return redirect(url_for("login"))
 
 
@@ -88,10 +88,7 @@ def login_existing():
         session["username"] = user.username
         session["role"] = user.role
         flash(f"Login successful! Welcome, {user.username} ({user.role.upper()})", "success")
-        if user.role == "admin":
-            return redirect(url_for("admin_menu"))
-        else:
-            return redirect(url_for("buyer_menu"))
+        return redirect(url_for(user.get_menu_route()))
     return render_template("login_existing.html", role=role)
 
 
@@ -151,6 +148,61 @@ def admin_add_component():
         except ValueError:
             flash("Invalid input. Component not added.", "danger")
     return render_template("admin/component_form.html")
+
+
+@app.route("/admin/components/<int:component_id>/edit", methods=["GET", "POST"])
+def admin_edit_component(component_id):
+    if "username" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    component = store.find_component_by_id(component_id)
+    if component is None:
+        flash("Component not found.", "danger")
+        return redirect(url_for("admin_components"))
+
+    if request.method == "POST":
+        try:
+            name = request.form["name"].strip()
+            category = request.form["category"].strip()
+            price = float(request.form["price"])
+            if price < 1000 or price != int(price):
+                flash("Please enter the valid input", "danger")
+                return render_template("admin/component_edit.html", component=component)
+            stock = int(request.form["stock"])
+            description = request.form.get("description", "").strip()
+
+            component.name = name
+            component.category = category
+            component.price = int(price)
+            component.stock = stock
+            component.description = description
+
+            if store.save_components():
+                flash("Component updated: " + component.name, "success")
+            else:
+                flash("Component updated, but saving to file failed.", "danger")
+            return redirect(url_for("admin_component_detail", component_id=component.component_id))
+        except ValueError:
+            flash("Invalid input. Component not updated.", "danger")
+    return render_template("admin/component_edit.html", component=component)
+
+
+@app.route("/admin/components/<int:component_id>/delete", methods=["POST"])
+def admin_delete_component(component_id):
+    if "username" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    component = store.find_component_by_id(component_id)
+    if component is None:
+        flash("Component not found.", "danger")
+        return redirect(url_for("admin_components"))
+
+    store.components.remove(component)
+    if store.save_components():
+        flash("Component permanently deleted: " + component.name, "success")
+    else:
+        flash("Deleted, but saving to file failed.", "danger")
+    return redirect(url_for("admin_components"))
 
 
 @app.route("/admin/components/<int:component_id>")

@@ -2,6 +2,13 @@
 {% block title %}{{ component.name }}{% endblock %}
 {% block content %}
 <h2>{{ component.name }}</h2>
+<p class="actions">
+  <a href="{{ url_for('admin_edit_component', component_id=component.component_id) }}">Edit</a>
+  &middot;
+  <form method="post" action="{{ url_for('admin_delete_component', component_id=component.component_id) }}" class="inline-form" onsubmit="return confirm('Permanently delete {{ component.name }}?');">
+    <button type="submit" class="link-button">Delete</button>
+  </form>
+</p>
 <table class="detail">
   <tr><th>Category</th><td>{{ component.category }}</td></tr>
   <tr><th>Price</th><td>{{ component.price|vnd }}</td></tr>
